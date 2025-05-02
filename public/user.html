@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Detail</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6" id="userTitle">User Details</h1>
+  
+  <div id="userDetails" class="bg-white p-6 rounded shadow"></div>
+
+  <script>
+    async function loadUserData() {
+      const userId = window.location.pathname.split('/').pop(); // get last part of URL
+      const res = await fetch('/api/carts');
+      const data = await res.json();
+
+      const userCart = data.carts.find(cart => cart.userId == userId);
+
+      const userDetails = document.getElementById('userDetails');
+      const userTitle = document.getElementById('userTitle');
+
+      if (userCart) {
+        userTitle.innerText = `User ID: ${userCart.userId}`;
+        userDetails.innerHTML = `
+          <p><strong>Total Products:</strong> ${userCart.totalProducts}</p>
+          <p><strong>Total Quantity:</strong> ${userCart.totalQuantity}</p>
+          <p><strong>Total Price:</strong> $${userCart.total}</p>
+          <p><strong>Discounted Total:</strong> $${userCart.discountedTotal}</p>
+          <h2 class="mt-4 text-xl font-semibold">Products:</h2>
+          <ul class="list-disc ml-5 mt-2">
+            ${userCart.products.map(product => `
+              <li class="mb-1">${product.title} — Quantity: ${product.quantity}</li>
+            `).join('')}
+          </ul>
+        `;
+      } else {
+        userTitle.innerText = 'User not found';
+      }
+    }
+
+    loadUserData();
+  </script>
+</body>
+</html>

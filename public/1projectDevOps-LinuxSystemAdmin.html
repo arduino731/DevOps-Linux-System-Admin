@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Web App with Automation, Containerization, Backups, and GitOps</title>
+</head>
+<body>
+    <h1>Secure Web App with Automation, Containerization, Backups, and GitOps</h1>
+
+    <h2>1. Launch an EC2 Instance</h2>
+    <h3>✅ Firewall management starts here. </h3>
+    <ol>
+        <li>Ubuntu 22.04 or Amazon Linux 2. <a href="/LauchEC2Instance.html">More details</a></li>
+        <li>Create a Security Group:<a href="/SecurityGroup.html">More details</a></li>
+        <ul>
+            <li>Allow only ports 22 (SSH), 80 (HTTP), and 443 (HTTPS).</li>
+        </ul>
+    </ol>
+    
+    <hr>
+
+    <h2>2. Install and Configure:</h2>
+    <h3>✅ Version control, containerization, SSL setup.</h3>
+    <ol>
+        <li>Git → clone a sample web app (even a simple Node.js, Django, or Flask app).</li>
+        <li>Docker → run the web app inside a Docker container.</li>
+        <ul>
+            <li><a href="/runWebapp.html">More Details</a></li>
+        </ul>
+        <li>Nginx or Caddy → reverse proxy for HTTPS (use Let's Encrypt certs).</li>
+        <ul>
+            <li><a href="/reverseProxy.html">Nginx reverse proxy, more details</a></li>
+        </ul>
+    </ol>
+
+    <hr>
+
+    <h2>3. Automate with Bash Script</h2>
+    <h3>✅ Automation and scripting.</h3>
+    <p>Write a <b>setup.sh</b> script that:</p>
+    <ol>
+        <li>Updates server packages(sudo apt update && sudo apt upgrade)</li>
+        <li>Install Git, Docker, Docker Compose</li>
+        <li>Clones your GitHub repo.</li>
+        <li>Builds and runs your Docker container</li>
+        <ul>
+            <li>example video here</li>
+        </ul>
+    </ol>
+
+    <hr>
+
+
+    
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style></style>
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Docker → run the web app inside a Docker container.</h1>
+    <h2>To run a web app inside a Docker container, follow these steps:</h2>
+       <b>Create a Dockerfile:</b>  
+       <ol>
+            <li>
+            <p>This file contains instructions for building the Docker image. A basic Dockerfile 
+            for a web app might look like this:</p>
+            </li>
+        </ol> 
+
+        <pre>
+            <code>
+            <span style="color:purple">FROM</span> &lt;base_image&gt;
+            <span style="color:purple">WORKDIR</span> /app
+            <span style="color:purple">COPY</span> . .
+            <span style="color:purple">RUN</span> &lt;install_dependencies_command&gt;
+            <span style="color:purple">EXPOSE</span> &lt;port&gt;
+            <span style="color:purple">CMD</span> ["&lt;command_to_start_app&gt;"]
+            </code>
+        </pre>
+
+        <ul>
+            <li>Replace &lt;base_image&gt; with a suitable base image (e.g., python:3.9, node:16).</li>
+            <li>&lt;install_dependencies_command&gt; installs the necessary packages (e.g., pip install -r requirements.txt, npm install). </li>
+            <li>&lt;port&gt; is the port your web app listens on.</li>
+            <li>&lt;command_to_start_app&gt; is the command to run your app (e.g., python app.py, npm start).</li>
+        </ul>
+            
+   <hr>
+   <ul>
+        <li>
+            <b>Build the Docker image:</b> Navigate to the directory containing your Dockerfile and run:
+        </li>
+    </ul>
+   
+<pre><code>docker build -t &lt;image_name&gt; .</code></pre>
+<p>Replace <code>&lt;image_name&gt;</code> with a name for your image.</p>
+
+<p>Run the Docker container:</p>
+<pre><code>docker run -d -p &lt;host_port&gt;:&lt;container_port&gt; &lt;image_name&gt;</code></pre>
+<ul>
+  <li><code>-d</code> runs the container in detached mode (background).</li>
+  <li><code>-p</code> maps the host port to the container port, allowing access from outside the container.</li>
+</ul>
+<p>
+  Replace <code>&lt;host_port&gt;</code> with the port you want to access the app on (e.g., 8080) and <code>&lt;container_port&gt;</code> with the port your app uses (defined in the Dockerfile, e.g., 5000).
+</p>
+
+<p>Access the web app: Open a web browser and go to <code>http://localhost:&lt;host_port&gt;</code>.</p>
+
+<p>Verify the container is running:</p>
+<pre><code>docker ps</code></pre>
+
+<p>Stop the container:</p>
+<pre><code>docker stop &lt;container_id or container_name&gt;</code></pre>
+
+<p>Remove the container:</p>
+<pre><code>docker rm &lt;container_id or container_name&gt;</code></pre>
+
+   
+
+
+
+</body>
+</html>

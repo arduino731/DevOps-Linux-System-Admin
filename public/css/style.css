@@ -1,0 +1,36 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 2rem auto;
+    max-width: 900px;
+    padding: 0 1rem;
+  }
+  h1, h2, h3 {
+    color: #2c3e50;
+  }
+  pre {
+    background: #f4f4f4;
+    padding: 1rem;
+    overflow-x: auto;
+    border-left: 4px solid #3498db;
+  }
+  code {
+    background: #eee;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+  }
+  ul {
+    margin-left: 1.5rem;
+  }
+  .tip {
+    background: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 1rem;
+    margin: 1rem 0;
+  }
+  .warning {
+    background: #fff3e0;
+    border-left: 4px solid #ff9800;
+    padding: 1rem;
+    margin: 1rem 0;
+  }

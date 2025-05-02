@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <h1 class="text-3xl font-bold mb-6">Carts Data</h1>
+  <h1 class="text-3xl font-bold mb-6">Total value in order</h1>
+  
+  <div id="carts" class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"></div>
+  <button id="sortButton" class="bg-blue-500 text-white p-2 rounded">Sort High to Low</button>
+
+  <div id="cartList" class="mt-4"></div>
+
+  <script>
+    async function loadCarts() {
+      const res = await fetch('/api/carts');
+      const data = await res.json();
+      const carts = data.carts;
+
+      const cartsDiv = document.getElementById('carts');
+      carts.sort((a, b) => b.total - a.total);  // use carts instead of data.carts
+      console.log(carts);
+
+
+      let isHighToLow = true; // Start with high-to-low
+
+      function renderCarts() {
+        const cartList = document.getElementById('cartList');
+        cartList.innerHTML = '';
+        carts.forEach(cart => {
+          const div = document.createElement('div');
+          div.className = 'p-2 border-b';
+          div.textContent = `Cart ID: ${cart.id} | Total: $${cart.total}`;
+          cartList.appendChild(div);
+        });
+      }
+
+      function sortCarts() {
+        if (isHighToLow) {
+          carts.sort((a, b) => b.total - a.total);
+        } else {
+          carts.sort((a, b) => a.total - b.total);
+        }
+        renderCarts();
+        document.getElementById('sortButton').textContent = isHighToLow ? 'Sort Low to High' : 'Sort High to Low';
+        isHighToLow = !isHighToLow; // Flip the sort order for next click
+      }
+
+      document.getElementById('sortButton').addEventListener('click', sortCarts);
+
+      // Initial render
+      renderCarts();
+
+      // Your detailed cards:
+        data.carts.forEach(cart => {
+        // console.log(data)
+        
+        const cartEl = document.createElement('div');
+        cartEl.className = 'bg-white p-4 rounded shadow';
+
+        cartEl.innerHTML = `
+        <h2 class="text-xl font-semibold mb-2">
+            <a href="/user/${cart.userId}" class="text-blue-600 hover:underline">
+            User ID: ${cart.userId}
+            </a>
+        </h2>
+        <p>Total Products: ${cart.totalProducts}</p>
+        <p>Total Quantity: ${cart.totalQuantity}</p>
+        <p class="mt-2 font-bold">Products:</p>
+        <ul class="list-disc ml-5">
+            ${cart.products.map(product => `
+            <li class="mb-1">
+                <img src="${product.thumbnail}" alt="${product.title}" class="inline w-10 h-10 rounded-full mr-2">
+                ${product.title} — $${product.discountedTotal.toFixed(2)}
+            </li>
+            `).join('')}
+        </ul>
+`;
+
+        cartsDiv.appendChild(cartEl);
+      });
+    }
+
+  loadCarts();
+  </script>
+</body>
+</html>
