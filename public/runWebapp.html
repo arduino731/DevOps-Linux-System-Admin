@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style></style>
     <link rel="stylesheet" href="/css/style.css">
-    <title>Document</title>
+    <title>web app inside a Docker container</title>
 </head>
 <body>
     <h1>Docker → run the web app inside a Docker container.</h1>
+    <iframe width="250" height="250"
+src="https://www.youtube.com/embed/erdO_a98Lb4">
+</iframe>
+<iframe width="250" height="250"
+src="https://www.youtube.com/embed/O3veCEQhWNI">
+</iframe>
+    
     <h2>To run a web app inside a Docker container, follow these steps:</h2>
        <b>Create a Dockerfile:</b>  
        <ol>
@@ -67,6 +74,73 @@
 <p>Remove the container:</p>
 <pre><code>docker rm &lt;container_id or container_name&gt;</code></pre>
 
+<h1>How to Confirm the File Path Inside a Docker Container</h1>
+
+  <div class="section">
+    <p>You can get inside your container and explore the file structure:</p>
+    <pre><code>docker exec -it &lt;your_container_name&gt; bash</code></pre>
+
+    <p>Once inside the container:</p>
+    <pre><code>cd /usr/src/app
+ls</code></pre>
+    <p>This helps you confirm where <code>index.html</code> should live.</p>
+  </div>
+
+  <div class="section">
+    <h2>✅ Best Practice: Rebuild and Restart Container</h2>
+    <p>If your change (like editing <code>index.html</code>) is meant to be permanent or version-controlled:</p>
+    <pre><code>docker build -t &lt;image_name&gt; .</code></pre>
+    <pre><code>docker stop &lt;container_name_or_id&gt;</code></pre>
+    <pre><code>docker rm &lt;container_name_or_id&gt;</code></pre>
+    <pre><code>docker run -d -p 8080:80 --name &lt;new_container_name&gt; &lt;image_name&gt;</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>🧪 Quick and Dirty: Copy File into Running Container</h2>
+    <p>Hint: <b>/usr/src/app </b>is a common convention in Linux, particularly when working with containers and Dockerfiles, to indicate the working directory for an application. It's a good location as it follows the Linux File System Hierarchy Standard (FHS), where /usr/src is traditionally used for source code</p>
+    <p>For fast, temporary changes:</p>
+    <pre><code>docker cp index.html &lt;container_name_or_id&gt;:/path/to/index.html</code></pre>
+    <p>You might need to restart the service inside the container depending on your setup (e.g., Nginx or Node.js).</p>
+  </div>
+
+  <div class="section">
+    <h2>🧰 Dev-Friendly: Use Volume Mounting</h2>
+    <p>For live development:</p>
+    <pre><code>docker run -d -p 8080:80 \
+  -v "$(pwd)/your-folder:/usr/share/nginx/html" \
+  --name dev_container nginx</code></pre>
+    <p>This syncs your local folder with the container’s web root, so file changes are reflected instantly.</p>
+  </div>
+
+  <div class="section">
+    <h2>Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Use Case</th>
+          <th>Command Needed After Change?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Rebuild & Restart</td>
+          <td>Production, permanent</td>
+          <td>Yes: build, run</td>
+        </tr>
+        <tr>
+          <td>docker cp</td>
+          <td>Quick patch</td>
+          <td>Only <code>docker cp</code></td>
+        </tr>
+        <tr>
+          <td>Volume mount</td>
+          <td>Active development</td>
+          <td>No, auto-updates</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
    
 
 
