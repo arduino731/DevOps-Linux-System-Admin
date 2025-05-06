@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Automate with Bash Script</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      background: #f9f9f9;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    code, pre {
+      background-color: #eee;
+      padding: 0.5rem;
+      display: block;
+      overflow-x: auto;
+      margin: 1rem 0;
+      border-radius: 5px;
+    }
+    .section {
+      background: #fff;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 5px solid #007acc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Automating Setup with a Bash Script</h1>
+
+  <div class="section">
+    <h2>🚀 What This Script Does</h2>
+    <ul>
+      <li>Stops old containers</li>
+      <li>Rebuilds your Node.js app</li>
+      <li>Runs Node.js and Nginx containers with volume mounts</li>
+      <li>Installs Git, Docker, Docker Compose</li>
+      <li>Clones your GitHub repo</li>
+      <li>Builds and starts frontend/backend containers</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>✅ setup.sh</h2>
+    <pre><code>#!/bin/bash
+
+# Exit immediately on error
+set -e
+
+echo "🔄 Updating system packages..."
+sudo apt update && sudo apt upgrade -y
+
+echo "🐙 Installing Git..."
+sudo apt install -y git
+
+echo "🐳 Installing Docker..."
+sudo apt install -y docker.io
+
+echo "🧱 Installing Docker Compose..."
+sudo apt install -y docker-compose
+
+echo "📁 Cloning your GitHub repo..."
+git clone https://github.com/arduino731/DevOps-Linux-System-Admin.git
+cd DevOps-Linux-System-Admin
+
+echo "🚀 Building and running Docker containers..."
+docker compose up -d --build
+
+echo "✅ Setup complete! Frontend running on http://localhost:8080 and backend on http://localhost:5001"
+</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>💡 Instructions</h2>
+    <p>Save as <code>setup.sh</code>, then run:</p>
+    <pre><code>chmod +x setup.sh
+./setup.sh</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>⚠️ Requirements</h2>
+    <p>Your repo must contain a <code>docker-compose.yml</code> that defines:</p>
+    <ul>
+      <li>Frontend on port 8080</li>
+      <li>Backend on port 5001</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>✅ docker-compose.yml</h2>
+    <pre><code>services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend/public:/usr/share/nginx/html
+    container_name: frontend_container
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5001:5001"
+    container_name: backend_container
+</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>📁 Expected Directory Structure</h2>
+    <pre><code>DevOps-Linux-System-Admin/
+├── setup.sh
+├── docker-compose.yml
+├── frontend/
+│   ├── Dockerfile
+│   └── public/
+│       └── index.html
+└── backend/
+    ├── Dockerfile
+    └── app.js</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>✅ frontend/Dockerfile</h2>
+    <pre><code>FROM nginx:alpine
+COPY public/ /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>✅ backend/Dockerfile</h2>
+    <pre><code>FROM node:22-alpine
+WORKDIR /usr/src/app
+COPY . .
+RUN npm install
+EXPOSE 5001
+CMD ["node", "app.js"]
+</code></pre>
+  </div>
+
+  <div class="section">
+    <h2>✅ Example backend/app.js</h2>
+    <pre><code>const express = require('express');
+const app = express();
+const port = 5001;
+
+app.get('/', (req, res) => {
+  res.send('Hello from the backend!');
+});
+
+app.listen(port, () => {
+  console.log(`Backend is running on http://localhost:${port}`);
+});
+</code></pre>
+  </div>
+
+</body>
+</html>
