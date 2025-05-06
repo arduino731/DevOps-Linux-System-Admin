@@ -50,4 +50,4 @@ app.get('/api/carts', async (req, res) => {
 });
   
 app.all("*", (req, res) =>res.send("You've tried reaching a route that doesn't exist."));
-app.listen(PORT,'0.0.0.0', () =>console.log(`Server running on port: http://localhost:${PORT}`));
+app.listen(PORT, () =>console.log(`Server running on port: http://localhost:${PORT}`));

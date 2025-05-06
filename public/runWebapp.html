@@ -9,13 +9,10 @@
 </head>
 <body>
     <h1>Docker → run the web app inside a Docker container.</h1>
-    <iframe width="250" height="250"
-src="https://www.youtube.com/embed/erdO_a98Lb4">
+    <iframe width="420" height="315"
+src="https://www.youtube.com/embed/NKIKUkZmL_k">
 </iframe>
-<iframe width="250" height="250"
-src="https://www.youtube.com/embed/O3veCEQhWNI">
-</iframe>
-    
+
     <h2>To run a web app inside a Docker container, follow these steps:</h2>
        <b>Create a Dockerfile:</b>  
        <ol>
@@ -78,7 +75,7 @@ src="https://www.youtube.com/embed/O3veCEQhWNI">
 
   <div class="section">
     <p>You can get inside your container and explore the file structure:</p>
-    <pre><code>docker exec -it &lt;your_container_name&gt; bash</code></pre>
+    <pre><code>docker exec -it &lt;your_container_name&gt; sh</code></pre>
 
     <p>Once inside the container:</p>
     <pre><code>cd /usr/src/app
@@ -99,12 +96,13 @@ ls</code></pre>
     <h2>🧪 Quick and Dirty: Copy File into Running Container</h2>
     <p>Hint: <b>/usr/src/app </b>is a common convention in Linux, particularly when working with containers and Dockerfiles, to indicate the working directory for an application. It's a good location as it follows the Linux File System Hierarchy Standard (FHS), where /usr/src is traditionally used for source code</p>
     <p>For fast, temporary changes:</p>
-    <pre><code>docker cp index.html &lt;container_name_or_id&gt;:/path/to/index.html</code></pre>
+    <pre><code>docker cp public/index.html &lt;container_name_or_id&gt;:/usr/src/app/public/index.html</code></pre>
     <p>You might need to restart the service inside the container depending on your setup (e.g., Nginx or Node.js).</p>
   </div>
 
   <div class="section">
     <h2>🧰 Dev-Friendly: Use Volume Mounting</h2>
+    <h3>Nginx is configured to serve files from <b>/usr/share/nginx/html </b>by default. (used in volume mounting)</h3>
     <p>For live development:</p>
     <pre><code>docker run -d -p 8080:80 \
   -v "$(pwd)/your-folder:/usr/share/nginx/html" \
@@ -114,6 +112,7 @@ ls</code></pre>
 
   <div class="section">
     <h2>Summary</h2>
+  <li><a href="https://docs.google.com/document/d/e/2PACX-1vSk31Ei74Yso_2LBFB8ZeZVYv15vpVHwXPUTmLHq5HlTfoLaQuUo7bN6OXUqFUYKXMNAIZnYKlnMgQl/pub" target="_blank">Is Nginx runtime as Node.js?</a></li>
     <table>
       <thead>
         <tr>

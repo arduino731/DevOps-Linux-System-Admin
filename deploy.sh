@@ -1,26 +1,19 @@
 #!/bin/bash
 
-# ========================
-# 🔁 Deployment Script
-# ========================
-KEY_PATH="$HOME/.ssh/ssh1.pem"
-REMOTE_USER="ubuntu"
-REMOTE_HOST="ec2-34-229-129-246.compute-1.amazonaws.com"
-REMOTE_DIR="~/app"
+# Define variables
+SERVER="ubuntu@ec2-13-218-60-167.compute-1.amazonaws.com"
+KEY_PATH="$HOME/.ssh/fresh-key.pem"
+REMOTE_DIR="/home/ubuntu/app"
 
-echo "🚀 Starting deployment to $REMOTE_HOST"
+# Upload current folder contents to EC2
+echo "Uploading project to EC2..."
+rsync -avz -e "ssh -i $KEY_PATH" --exclude 'node_modules' ./ "$SERVER:$REMOTE_DIR"
 
-# Step 1: Sync files
-rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
--e "ssh -i $KEY_PATH" \
-. $REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR
-
-# Step 2: SSH into server and run app
-echo "✅ Code synced. Logging into EC2..."
-ssh -i $KEY_PATH $REMOTE_USER@$REMOTE_HOST << 'EOF'
-  cd ~/app
-  echo "📦 Installing dependencies..."
-  npm install
-  echo "🚀 Starting server..."
-  npm start
+# SSH and deploy
+echo "Deploying on EC2..."
+ssh -i "$KEY_PATH" "$SERVER" << EOF
+  cd "$REMOTE_DIR" || exit 1
+  docker-compose pull
+  docker-compose down --remove-orphans
+  docker-compose up -d --build
 EOF
