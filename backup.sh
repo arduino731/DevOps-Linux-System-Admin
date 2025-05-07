@@ -17,3 +17,4 @@ aws s3 cp "$ARCHIVE_PATH" "$S3_BUCKET/"
 rm "$ARCHIVE_PATH"
 
 echo "✅ Backup complete: ${ARCHIVE_NAME} uploaded to ${S3_BUCKET}"
+
