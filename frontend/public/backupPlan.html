@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Docker Backup Plan</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; padding: 2rem; background: #f9f9f9; }
+    h2 { color: #2c3e50; margin-top: 2rem; }
+    code, pre { background: #eef; padding: 0.5em; display: block; white-space: pre-wrap; border-radius: 5px; }
+    ul { padding-left: 1.2em; }
+    .highlight { background: #dff0d8; padding: 0.5em; border-left: 4px solid #3c763d; margin-bottom: 1em; }
+    .warning { background: #f2dede; padding: 0.5em; border-left: 4px solid #a94442; margin-bottom: 1em; }
+  </style>
+</head>
+<body>
+
+  <h1>🛡️ Docker Volume Backup Plan to S3</h1>
+
+  <h2>✅ Step 1: Update Your Package Sources</h2>
+  <pre><code>sudo apt-get update</code></pre>
+
+  <h2>✅ Step 2: Install Prerequisites</h2>
+  <pre><code>sudo apt-get install unzip curl</code></pre>
+
+  <h2>✅ Step 3: Install AWS CLI Manually</h2>
+  <pre><code>
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws --version
+  </code></pre>
+
+  <h2>🔐 Get Your AWS Access Key ID & Secret Access Key</h2>
+  <ul>
+    <li>Log in to <a href="https://console.aws.amazon.com">AWS Console</a></li>
+    <li>Search for <strong>IAM</strong></li>
+    <li>Click "Users" > Your username</li>
+    <li>Go to "Security credentials" tab</li>
+    <li>Create Access Key for CLI use</li>
+  </ul>
+  <div class="highlight">
+    <strong>Important:</strong> Copy the secret key immediately, it won’t show again.
+  </div>
+
+  <h2>🛠️ Configure AWS CLI</h2>
+  <pre><code>aws configure</code></pre>
+
+  <h2>✅ Create an S3 Bucket</h2>
+  <pre><code>
+aws s3 mb s3://my-devops-backup-bv123 --region us-east-1
+aws s3 ls
+  </code></pre>
+
+  <h2>📦 Where Docker Stores Volume Data</h2>
+  <pre><code>/var/lib/docker/volumes/my_volume/_data/</code></pre>
+
+  <h2>🛠 Sample <code>backup.sh</code> Script</h2>
+  <pre><code>#!/bin/bash
+
+VOLUME_NAME="my_volume"
+TIMESTAMP=$(date +%F-%H-%M)
+ARCHIVE_NAME="${VOLUME_NAME}_backup_${TIMESTAMP}.tar.gz"
+ARCHIVE_PATH="/tmp/${ARCHIVE_NAME}"
+S3_BUCKET="s3://my-devops-backupplan"
+
+docker run --rm -v ${VOLUME_NAME}:/data -v /tmp:/backup alpine \
+  tar czf "/backup/${ARCHIVE_NAME}" -C /data .
+
+aws s3 cp "$ARCHIVE_PATH" "$S3_BUCKET/"
+rm "$ARCHIVE_PATH"
+
+echo "✅ Backup complete: ${ARCHIVE_NAME} uploaded to ${S3_BUCKET}"
+  </code></pre>
+
+  <div class="warning">
+    ⚠️ Run with <code>sudo</code> if needed: <code>sudo ./backup.sh</code><br>
+    Make sure <code>docker</code> and <code>aws configure</code> work under the same user.
+  </div>
+
+  <h2>⏰ Schedule Backups with Cron</h2>
+
+  <h3>✅ Step 1: Copy script to home and make executable</h3>
+  <pre><code>
+cp /mnt/c/Users/Dell\ Inspiron/Documents/GitHub/DevOps-Linux-System-Admin/backup.sh ~/backup.sh
+chmod +x ~/backup.sh
+  </code></pre>
+
+  <h3>✅ Step 2: Edit Crontab</h3>
+  <pre><code>crontab -e</code></pre>
+
+  <h3>✅ Step 3: Add Cron Job (every Monday @ 2 AM)</h3>
+  <pre><code>
+0 2 * * 1 /usr/bin/sudo /home/dell_inspiron/backup.sh >> /home/dell_inspiron/backup.log 2>&1
+  </code></pre>
+
+  <h3>✅ Step 4: Allow Passwordless Sudo for the Script</h3>
+  <pre><code>
+sudo visudo
+# Add:
+dell_inspiron ALL=(ALL) NOPASSWD: /home/dell_inspiron/backup.sh
+  </code></pre>
+
+  <div class="highlight">
+    ✅ All done! Your Docker volume will be backed up to S3 every Monday at 2 AM.
+  </div>
+
+</body>
+</html>
