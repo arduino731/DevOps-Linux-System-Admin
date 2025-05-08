@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevOps-Linux-System-Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+      line-height: 1.6;
+    }
+    code, pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 0.75rem;
+      display: block;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+    section {
+      background: white;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>DevOps-Linux-System-Admin</h1>
+    <p>A hands-on project demonstrating how to deploy, monitor, and manage a full-stack Dockerized application on AWS EC2 using Infrastructure as Code (Terraform), bash automation scripts, and best practices in backup and monitoring.</p>
+  </section>
+
+  <section>
+    <h2>🛠️ 1. Setup Instructions</h2>
+    <h3>✅ Requirements</h3>
+    <ul>
+      <li>AWS account with EC2 access</li>
+      <li>SSH key pair (<code>fresh_key.pem</code> & <code>fresh_key.pub</code>)</li>
+      <li>Ubuntu-based local machine or WSL</li>
+      <li>Terraform, Docker, Docker Compose, Git</li>
+    </ul>
+
+    <h3>📁 Clone the Repo</h3>
+    <pre><code>git clone https://github.com/arduino731/DevOps-Linux-System-Admin.git
+cd DevOps-Linux-System-Admin</code></pre>
+
+    <h3>🚀 Launch Infrastructure</h3>
+    <pre><code>cd ec2-terraform-demo
+terraform init
+terraform apply</code></pre>
+    <p>Make sure your <code>~/.ssh/fresh_key.pub</code> exists locally.</p>
+
+    <h3>🔧 Configure AWS CLI</h3>
+    <pre><code>aws configure</code></pre>
+
+    <h3>🐳 Deploy the App</h3>
+    <pre><code>./deploy.sh</code></pre>
+    <p>This will:</p>
+    <ul>
+      <li>Sync code to EC2</li>
+      <li>Restart Docker frontend and backend</li>
+      <li>Install monitoring script into <code>/etc/cron.daily</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>🧱 2. Architecture Diagram</h2>
+    <pre><code>[Local Dev Machine] --rsync+SSH--> [EC2 Instance]
+                                     |
+                                     |-- Docker Compose
+                                     |     ├── Frontend (Nginx on :8080)
+                                     |     └── Backend (Node.js on :5001)
+                                     |
+                                     |-- Cron Script -> /var/log/monitor.log
+                                     |-- CloudWatch Agent
+                                     |-- Fail2ban (SSH protection)</code></pre>
+  </section>
+
+  <section>
+    <h2>💾 3. Backup & Restore</h2>
+
+    <h3>🗂️ Backup</h3>
+    <p>Use <code>backup.sh</code> to archive data volumes or app code:</p>
+    <pre><code>./backup.sh</code></pre>
+    <p>Store archives locally or upload to S3 for durability.</p>
+
+    <h3>🔁 Restore</h3>
+    <pre><code>rsync -avz backup.tar.gz ubuntu@&lt;EC2-IP&gt;:/home/ubuntu/</code></pre>
+    <pre><code>ssh -i ~/.ssh/fresh_key.pem ubuntu@&lt;EC2-IP&gt;
+cd /home/ubuntu && tar -xzvf backup.tar.gz
+cd DevOps-Linux-System-Admin && docker-compose up -d --build</code></pre>
+  </section>
+
+  <section>
+    <h2>♻️ 4. Rebuild from Scratch</h2>
+
+    <h3>🔄 Clean Start</h3>
+    <pre><code>terraform destroy</code></pre>
+    <p>Then re-run from Setup Instructions:</p>
+    <pre><code>terraform apply
+./deploy.sh</code></pre>
+
+    <h3>⚙️ System Reinstall</h3>
+    <ul>
+      <li>Update your Elastic IP or DNS records.</li>
+      <li>Ensure <code>fresh_key.pem</code> still matches EC2 authorized key.</li>
+      <li>Follow the deployment steps again.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>📈 Monitoring & Security</h2>
+    <ul>
+      <li><strong>fail2ban</strong>: Protects from SSH brute-force attacks</li>
+      <li><strong>CloudWatch Agent</strong>: Streams memory, disk, and uptime logs to AWS</li>
+      <li><code>monitor.sh</code>: Local disk + uptime cron script logged daily to <code>/var/log/monitor.log</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>📂 Folder Structure</h2>
+    <pre><code>DevOps-Linux-System-Admin/
+├── backend/               # Node.js app
+├── frontend/              # Static HTML site via Nginx
+├── monitoring/monitor.sh  # Cron script
+├── deploy.sh              # Rsync & container setup
+├── setup.sh               # System prep & Docker install
+├── backup.sh              # Backup logic
+├── docker-compose.yml
+└── ec2-terraform-demo/    # Terraform configs</code></pre>
+  </section>
+
+  <section>
+    <h2>📬 Contact</h2>
+    <p>Maintained by <strong>Brian</strong> — feel free to fork, star, or reach out with feedback or questions.</p>
+  </section>
+</body>
+</html>
