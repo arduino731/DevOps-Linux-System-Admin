@@ -7,7 +7,7 @@ services:
     ports:
       - "5001:5001"
     volumes:
-      - backend_data:/usr/src/app
+      - backend_data:/usr/src/app/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001"]
       interval: 30s
@@ -21,8 +21,7 @@ services:
     ports:
       - "80:80"
     volumes:
-      - frontend_data:/usr/share/nginx/html
+      - ./frontend/public:/usr/share/nginx/html:ro
 
 volumes:
-  backend_data:
-  frontend_data:
+   backend_data:
