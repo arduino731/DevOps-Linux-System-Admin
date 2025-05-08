@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Infrastructure as Code (IaC)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    code, pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 0.5rem;
+      display: block;
+      white-space: pre-wrap;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    h2, h3, h4 {
+      color: #333;
+    }
+    a {
+      color: #007acc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul, ol {
+      padding-left: 2rem;
+    }
+    section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+
+<section>
+    <h2>6. Security and Monitoring</h2>
+    <p>✅ <strong>Protect and observe your EC2 instance.</strong></p>
+  
+    <h3>🛡️ Install fail2ban (SSH Protection)</h3>
+    <ul>
+      <li>Prevents brute-force SSH attacks by banning IPs with multiple failed login attempts.</li>
+    </ul>
+    <pre><code>sudo apt update
+  sudo apt install -y fail2ban
+  sudo systemctl enable fail2ban
+  sudo systemctl start fail2ban
+  sudo fail2ban-client status</code></pre>
+  
+    <h3>📋 Set up CloudWatch Agent (System Logging)</h3>
+    <ul>
+      <li>Logs memory, CPU, disk, and network usage to AWS CloudWatch.</li>
+      <li>Requires an IAM role with CloudWatch permissions.</li>
+    </ul>
+    <pre><code>curl -O https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+  sudo dpkg -i amazon-cloudwatch-agent.deb
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-config-wizard
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config -m ec2 \
+    -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json \
+    -s</code></pre>
+  
+    <h3>📊 Monitor Uptime and Disk Space (Daily Log)</h3>
+    <ul>
+      <li>Logs server uptime and disk usage daily to <code>/var/log/monitor.log</code>.</li>
+      <li>Runs automatically from <code>/etc/cron.daily/monitor.sh</code>.</li>
+    </ul>
+    <pre><code>#!/bin/bash
+  LOG_FILE="/var/log/monitor.log"
+  
+  echo "[$(date)] Monitoring snapshot" >> $LOG_FILE
+  echo "🕒 Uptime:" >> $LOG_FILE
+  uptime >> $LOG_FILE
+  
+  echo "💾 Disk Usage:" >> $LOG_FILE
+  df -h >> $LOG_FILE
+  
+  echo "-------------------------------" >> $LOG_FILE</code></pre>
+  
+    <p>✅ Monitor logs manually:</p>
+    <pre><code>cat /var/log/monitor.log</code></pre>
+  </section>
+</main>
+</body>
+</html>
