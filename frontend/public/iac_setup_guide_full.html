@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Infrastructure as Code (IaC)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 2rem;
+      background-color: #f9f9f9;
+    }
+    code, pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 0.5rem;
+      display: block;
+      white-space: pre-wrap;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    h2, h3, h4 {
+      color: #333;
+    }
+    a {
+      color: #007acc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul, ol {
+      padding-left: 2rem;
+    }
+    section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h2>Setup Infrastructure as Code (IaC)</h2>
+      <p>✅ <strong>Step 1: Install Terraform</strong></p>
+      <p>Make sure Terraform is installed on your local machine:</p>
+      <pre><code>terraform -v</code></pre>
+      <p>If not installed, download it from <a href="https://www.terraform.io/downloads.html" target="_blank">terraform.io</a>.</p>
+      <p>Install Terraform in WSL, not on Windows directly, if you're doing your DevOps work inside WSL.</p>
+
+      <h4>✅ Why Install in WSL?</h4>
+      <ul>
+        <li>Your scripts, AWS CLI config, Docker, and GitHub repo are all inside WSL.</li>
+        <li>You’ll likely be running <code>terraform apply</code>, <code>terraform init</code> from WSL.</li>
+        <li>It ensures filesystem paths, SSH keys, and AWS credentials are consistent.</li>
+      </ul>
+
+      <h3>✅ Step 2: Create Terraform Configuration Folder</h3>
+      <pre><code>mkdir ec2-terraform-demo && cd ec2-terraform-demo</code></pre>
+
+      <h3>✅ Step 3: Create Terraform Files</h3>
+      <p>main.tf</p>
+      <pre><code>provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_key_pair" "demo_key" {
+  key_name   = "demo-key"
+  public_key = file("~/.ssh/fresh_key.pub")
+}
+
+resource "aws_security_group" "demo_sg" {
+  name        = "demo-sg"
+  description = "Allow SSH and HTTP"
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "demo_instance" {
+  ami           = "ami-053b0d53c279acc90"
+  instance_type = "t3.micro"
+  key_name      = aws_key_pair.demo_key.key_name
+  vpc_security_group_ids = [aws_security_group.demo_sg.id]
+  associate_public_ip_address = false
+  tags = {
+    Name = "DemoInstance"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update -y",
+      "sudo apt install -y git docker.io docker-compose",
+      "sudo systemctl start docker",
+      "sudo systemctl enable docker",
+      "sudo usermod -aG docker ubuntu",
+      "cd /home/ubuntu",
+      "git clone https://github.com/arduino731/DevOps-Linux-System-Admin.git",
+      "cd DevOps-Linux-System-Admin",
+      "sudo docker-compose up -d"
+    ]
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file("~/.ssh/fresh_key.pem")
+      host        = aws_eip.demo_eip.public_ip
+    }
+  }
+}
+
+resource "aws_eip" "demo_eip" {
+  domain = "vpc"
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.demo_instance.id
+  allocation_id = aws_eip.demo_eip.id
+}</code></pre>
+
+      <h3>✅ Step 4: Initialize and Apply Terraform</h3>
+      <pre><code>terraform init
+terraform apply</code></pre>
+
+      <h3>✅ Step 5: Setup AWS CLI</h3>
+      <pre><code>aws configure
+aws s3 ls</code></pre>
+
+      <h3>✅ Final Deployment Script (deploy.sh)</h3>
+      <pre><code>#!/bin/bash
+set -e
+echo "[$(date)] Starting deployment..."
+
+rsync -avz --exclude 'node_modules' --exclude 'aws' \
+  -e "ssh -i ~/.ssh/fresh_key.pem" \
+  ./ ubuntu@ec2-YOUR-IP.compute-1.amazonaws.com:/home/ubuntu/app/DevOps-Linux-System-Admin
+
+ssh -i ~/.ssh/fresh_key.pem ubuntu@ec2-YOUR-IP.compute-1.amazonaws.com << 'EOF'
+  echo "[$(date)] Restarting Docker containers..."
+  cd ~/app/DevOps-Linux-System-Admin
+  docker-compose down
+  docker-compose up -d --build
+  docker ps --filter "health=unhealthy" --format "⚠️  Unhealthy container: {{.Names}}"
+EOF</code></pre>
+    </section>
+  </main>
+</body>
+</html>

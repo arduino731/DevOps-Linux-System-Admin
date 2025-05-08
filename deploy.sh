@@ -1,28 +1,29 @@
 #!/bin/bash
 
 echo "[$(date)] Starting deployment..."
-
 set -e
 
-# Optional: Check for unhealthy containers locally (on your machine)
-# You probably meant to do this on EC2 after deploy, not locally
-# So this line is not useful here and should be removed or moved inside the SSH block
+# ✅ Sync code to EC2 (excluding large/unnecessary files)
+rsync -avz --exclude 'node_modules' --exclude 'aws' \
+  -e "ssh -i ~/.ssh/fresh_key.pem" \
+  ./ ubuntu@ec2-3-86-244-173.compute-1.amazonaws.com:/home/ubuntu/app/DevOps-Linux-System-Admin
 
-# Sync code to EC2 (if not using Git-based deployment)
-# rsync -avz --exclude 'node_modules' --exclude 'aws' -e "ssh -i ~/.ssh/fresh_key.pem" ./ ubuntu@ec2-3-86-244-173.compute-1.amazonaws.com:/home/ubuntu/app/DevOps-Linux-System-Admin
-
-# SSH into EC2 and deploy
+# ✅ SSH into EC2 to deploy app and install monitor.sh
 ssh -i ~/.ssh/fresh_key.pem ubuntu@ec2-3-86-244-173.compute-1.amazonaws.com << 'EOF'
-  echo "[$(date)] Pulling latest code and restarting containers..."
-
+  echo "[$(date)] Restarting Docker containers..."
   cd ~/app/DevOps-Linux-System-Admin
-  git pull origin main
-
   docker-compose down
   docker-compose up -d --build
 
-  echo "[$(date)] Deployment complete."
+  echo "[$(date)] Installing monitoring script..."
+  sudo cp monitoring/monitor.sh /etc/cron.daily/monitor.sh
+  sudo chmod +x /etc/cron.daily/monitor.sh
 
-  # Check for any unhealthy containers
+  echo "[$(date)] Cleaning up Docker system..."
+  docker system prune -f
+
+  echo "[$(date)] Checking for unhealthy containers..."
   docker ps --filter "health=unhealthy" --format "⚠️  Unhealthy container: {{.Names}}"
+
+  echo "[$(date)] Deployment complete."
 EOF
