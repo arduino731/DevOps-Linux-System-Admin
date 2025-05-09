@@ -115,20 +115,7 @@ CloudWatch Agent: Streams memory, disk, and uptime logs to AWS
 monitor.sh: Local disk + uptime cron script logged daily to /var/log/monitor.log
 
 📂 Folder Structure
-
-📂 DevOps-Linux-System-Admin/
-├── 🧠 backend/               # Node.js app
-│   └── app.js, package.json
-├── 🌐 frontend/              # Static HTML site via Nginx
-│   └── public/index.html
-├── 🛡️ monitoring/
-│   └── monitor.sh           # Cron script for uptime + disk logging
-├── 🚀 deploy.sh              # Rsync & remote Docker deploy script
-├── 🧱 setup.sh               # System prep & Docker install
-├── 💾 backup.sh              # Volume/code backup script
-├── 🐳 docker-compose.yml     # Defines frontend + backend containers
-└── ☁️ ec2-terraform-demo/    # Terraform configs (EC2 + SG + EIP)
-    └── main.tf, variables.tf, outputs.tf
+![Screenshot 2025-05-09 122348](https://github.com/user-attachments/assets/26517e9c-e900-44cd-9987-2c1e815cbf45)
 
 📬 Contact
 
