@@ -59,6 +59,8 @@ Install monitoring script into /etc/cron.daily
                                      |-- CloudWatch Agent
                                      |-- Fail2ban (SSH protection)
 
+![architecture_diagram_local_to_ec2](https://github.com/user-attachments/assets/7e51a84e-9336-4802-af7a-8b697c602da8)
+
 💾 3. Backup & Restore
 
 🗂️ Backup
