@@ -116,15 +116,19 @@ monitor.sh: Local disk + uptime cron script logged daily to /var/log/monitor.log
 
 📂 Folder Structure
 
-DevOps-Linux-System-Admin/
-├── backend/               # Node.js app
-├── frontend/              # Static HTML site via Nginx
-├── monitoring/monitor.sh  # Cron script
-├── deploy.sh              # Rsync & container setup
-├── setup.sh               # System prep & Docker install
-├── backup.sh              # Backup logic
-├── docker-compose.yml
-└── ec2-terraform-demo/    # Terraform configs
+📂 DevOps-Linux-System-Admin/
+├── 🧠 backend/               # Node.js app
+│   └── app.js, package.json
+├── 🌐 frontend/              # Static HTML site via Nginx
+│   └── public/index.html
+├── 🛡️ monitoring/
+│   └── monitor.sh           # Cron script for uptime + disk logging
+├── 🚀 deploy.sh              # Rsync & remote Docker deploy script
+├── 🧱 setup.sh               # System prep & Docker install
+├── 💾 backup.sh              # Volume/code backup script
+├── 🐳 docker-compose.yml     # Defines frontend + backend containers
+└── ☁️ ec2-terraform-demo/    # Terraform configs (EC2 + SG + EIP)
+    └── main.tf, variables.tf, outputs.tf
 
 📬 Contact
 
